@@ -56,14 +56,44 @@ class ViewController: UIViewController
     {
         let operation = sender.currentTitle!
         
+        if isInTheMiddleOfTypingANumber
+        {
+            enter()
+        }
+        
         switch operation
         {
-         case "÷":
-            break
+        case "×":
+            performOperation { $0 * $1 }
+        case "÷":
+            performOperation { $1 / $0 }
+        case "−":
+            performOperation { $1 - $0 }
+        case "+":
+            performOperation { $0 + $1 }
+        case "√":
+            performUnaryOperation { sqrt($0) }
         default:
             break
         }
     }
     
+    func performOperation(operation: (op1: Double, op2: Double) -> Double)
+    {
+        if operandStack.count >= 2
+        {
+            displayValue = operation(op1: operandStack.removeLast(), op2: operandStack.removeLast())
+            enter()
+        }
+    }
+    
+    func performUnaryOperation(operation: (op1: Double) -> Double)
+    {
+        if operandStack.count >= 1
+        {
+            displayValue = operation(op1: operandStack.removeLast())
+            enter()
+        }
+    }
 }
 
