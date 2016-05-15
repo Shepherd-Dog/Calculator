@@ -12,6 +12,7 @@ class ViewController: UIViewController
 {
     @IBOutlet weak var display: UILabel!
     
+    var brain = CalculatorBrain()
     var isInTheMiddleOfTypingANumber: Bool = false
     
     @IBAction func appendDigit(sender: UIButton)
@@ -30,8 +31,6 @@ class ViewController: UIViewController
         print("Append this digit: \(digit)")
     }
     
-    var operandStack = Array<Double>()
-    
     var displayValue: Double
     {
         get
@@ -48,8 +47,7 @@ class ViewController: UIViewController
     {
         isInTheMiddleOfTypingANumber = false
         
-        operandStack.append(displayValue)
-        print("Operand Stack: \(operandStack)")
+        brain.pushOperand(displayValue)
     }
     
     @IBAction func operate(sender: UIButton)
@@ -61,38 +59,11 @@ class ViewController: UIViewController
             enter()
         }
         
-        switch operation
+        brain.performOperation(operation)
+        
+        if let newDisplayValue = brain.evaluate()
         {
-        case "×":
-            performOperation { $0 * $1 }
-        case "÷":
-            performOperation { $1 / $0 }
-        case "−":
-            performOperation { $1 - $0 }
-        case "+":
-            performOperation { $0 + $1 }
-        case "√":
-            performUnaryOperation { sqrt($0) }
-        default:
-            break
-        }
-    }
-    
-    func performOperation(operation: (op1: Double, op2: Double) -> Double)
-    {
-        if operandStack.count >= 2
-        {
-            displayValue = operation(op1: operandStack.removeLast(), op2: operandStack.removeLast())
-            enter()
-        }
-    }
-    
-    func performUnaryOperation(operation: (op1: Double) -> Double)
-    {
-        if operandStack.count >= 1
-        {
-            displayValue = operation(op1: operandStack.removeLast())
-            enter()
+            displayValue = newDisplayValue
         }
     }
 }
